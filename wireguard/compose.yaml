@@ -1,0 +1,18 @@
+services:
+  wireguard:
+    build: .
+    container_name: wireguard-intranet
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    volumes:
+      - ./wg0.conf:/etc/wireguard/wg0.conf
+      - /lib/modules:/lib/modules
+    command: ["/bin/bash", "/etc/wireguard/entrypoint.sh"]
+    restart: unless-stopped
+    networks:
+      - vpn-network
+
+networks:
+  vpn-network:
+    driver: bridge
