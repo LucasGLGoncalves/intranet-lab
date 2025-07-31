@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  wireguard:
+    build: ./wireguard
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    volumes:
+      - ./wireguard/wg0.conf:/etc/wireguard/wg0.conf
+      - /lib/modules:/lib/modules
+    command: ["/bin/bash", "/etc/wireguard/entrypoint.sh"]
+    networks:
+      vpn:
+        ipv4_address: 10.10.0.1
+
+  vault:
+    image: vault:latest
+    container_name: vault
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault_data:/vault/data
+      - ./vault/config.hcl:/vault/config/config.hcl
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_ADDR: http://0.0.0.0:8200
+    command: vault server -config=/vault/config/config.hcl
+    networks:
+      - vpn
+
+  registry:
+    image: registry:2
+    container_name: registry
+    ports:
+      - "5000:5000"
+    volumes:
+      - registry_data:/var/lib/registry
+      - ./registry/config.yml:/etc/docker/registry/config.yml
+    networks:
+      - vpn
+
+volumes:
+  vault_data:
+  registry_data:
+
+networks:
+  vpn:
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
