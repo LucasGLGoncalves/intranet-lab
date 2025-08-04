@@ -1,2 +1,4 @@
 *.key
 *.env
+vault-data/
+vault-data/*
