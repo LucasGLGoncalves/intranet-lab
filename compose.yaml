@@ -1,8 +1,6 @@
-version: '3.9'
-
 services:
   wireguard:
-    build: ./wireguard
+    image: linuxserver/wireguard
     container_name: wireguard
     cap_add:
       - NET_ADMIN
@@ -16,31 +14,32 @@ services:
         ipv4_address: 10.10.0.1
 
   vault:
-    image: vault:latest
+    image: hashicorp/vault:1.20
     container_name: vault
     ports:
       - "8200:8200"
-    volumes:
-      - vault_data:/vault/data
-      - ./vault/config.hcl:/vault/config/config.hcl
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_ADDR: http://0.0.0.0:8200
-    command: vault server -config=/vault/config/config.hcl
+      VAULT_LOCAL_CONFIG: /vault/config/config.hcl
+    volumes:
+      - ./vault/config.hcl:/vault/config/config.hcl
+      - vault_data:/vault/file
     networks:
-      - vpn
+      vpn:
+        ipv4_address: 10.10.0.2
 
   registry:
-    image: registry:2
+    image: registry:3
     container_name: registry
     ports:
       - "5000:5000"
     volumes:
-      - registry_data:/var/lib/registry
       - ./registry/config.yml:/etc/docker/registry/config.yml
+      - registry_data:/var/lib/registry
     networks:
-      - vpn
+      vpn:
+        ipv4_address: 10.10.0.3
 
 volumes:
   vault_data:
