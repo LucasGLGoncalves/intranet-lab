@@ -4,4 +4,6 @@
 
 acessar maquina com ssh
 
+configurar wireguard
+
 listar passos para uso...
