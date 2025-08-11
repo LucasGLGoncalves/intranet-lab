@@ -4,4 +4,8 @@
 
 acessar maquina com ssh
 
+configurar wireguard
+
+acesso por mauqina ponte
+
 listar passos para uso...
